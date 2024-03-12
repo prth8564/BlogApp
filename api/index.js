@@ -1,5 +1,6 @@
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const mongoose=require('mongoose');
 const User=require('./models/user');
@@ -9,6 +10,7 @@ const app=express();
 app.use(express.json())
 
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
+app.use(cookieParser);
 const secret = 'whateveruuuuuu';
 const salt = bcrypt.genSaltSync(10);
 app.post('/test',(req,res)=>{
@@ -37,20 +39,7 @@ app.post('/register',async (req,res) =>{
     console.log("out of the block");
 })
 
-// app.post('/login' ,async (req,res) => {
-//     const {username,password} = req.body;
-//     const ReqUser= req.body.Username;
-//     const ReqPass=req.body.Password;
-//     const UserDoc = await User.findOne({username});
-//     const passOk = ReqPass == UserDoc.Password;
-//     console.log(ReqPass);
-//     console.log(passOk);
-//     console.log(UserDoc.Password);
-//     if(passOk){
-//         console.log("logged in");
-//         res.write('logged');
-//     }
-// })
+//login
 app.post('/login' ,async (req,res) => {
     const Username = req.body.Username;
     const Password = req.body.Password;
@@ -63,6 +52,8 @@ app.post('/login' ,async (req,res) => {
         jwt.sign({Username, id:UserDoc._id}, secret,{},(err,token) =>{
             if(err) throw err;
             res.cookie('token', token).json('ok');
+            res.json(token);
+            console.log("here");
 
         });
         res.status(200);
@@ -72,8 +63,11 @@ app.post('/login' ,async (req,res) => {
         res.status(400).json('wrong credentials');
     }
 });
-
-
+//login--end
+app.get('/profile', (req,res) => {
+    res.json(req.cookies);
+    console.log(req.cookies);
+})
 app.listen(4000);
 
 //Fd9nQ85UGCqHnKP1
